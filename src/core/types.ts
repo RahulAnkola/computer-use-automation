@@ -4,8 +4,6 @@
 // only way to identify a control -- see REPORT.md ("Heterogeneity") for how
 // this seam extends to desktop/accessibility-tree surfaces.
 
-export type LocatorStrategy = "role" | "label" | "text" | "css" | "testid";
-
 export interface RoleLocator {
   strategy: "role";
   role: string; // ARIA/Playwright role, e.g. "button", "link", "textbox", "combobox"

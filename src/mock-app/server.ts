@@ -44,7 +44,7 @@ export function createApp() {
     return !sessions.get(sid)?.ack;
   }
 
-  app.get("/", (req, res) => {
+  app.get("/", (_req, res) => {
     res.send(renderHome());
   });
 

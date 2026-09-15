@@ -12,8 +12,6 @@ export interface GuardrailPolicy {
   allowedActionTypes: ActionType[];
   /** Accessible-name patterns that mark a control as risky/irreversible regardless of action type. */
   riskyControlPatterns: RegExp[];
-  /** Route patterns that are inherently risky to POST to (state-changing, hard to undo). */
-  riskyRoutePatterns: RegExp[];
   maxSteps: number;
   maxRuntimeMs: number;
 }
@@ -23,7 +21,6 @@ export const defaultPolicy: GuardrailPolicy = {
   allowedRoutePatterns: [/^\/$/, /^\/search/, /^\/members(\/.*)?$/, /^\/interstitial\/ack$/],
   allowedActionTypes: ["navigate", "click", "type", "select", "extract", "assert_text", "wait_for", "escalate"],
   riskyControlPatterns: [/approve as manager/i, /delete/i, /close account/i, /manager/i],
-  riskyRoutePatterns: [/\/manager-approve$/, /\/confirm$/],
   maxSteps: 40,
   maxRuntimeMs: 5 * 60 * 1000,
 };
@@ -59,11 +56,6 @@ export function assertActionTypeAllowed(policy: GuardrailPolicy, action: ActionT
 /** Is this specific control (by accessible name) one the agent must never click autonomously? */
 export function isRiskyControl(policy: GuardrailPolicy, accessibleName: string): boolean {
   return policy.riskyControlPatterns.some((re) => re.test(accessibleName));
-}
-
-export function isRiskyRoute(policy: GuardrailPolicy, url: string): boolean {
-  const path = new URL(url).pathname;
-  return policy.riskyRoutePatterns.some((re) => re.test(path));
 }
 
 // --- Redaction -----------------------------------------------------------

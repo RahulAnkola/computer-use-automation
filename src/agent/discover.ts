@@ -1,4 +1,5 @@
 import type { FunctionDeclaration } from "@google/genai";
+import type { Page } from "playwright";
 import { LlmClient } from "./llmClient.js";
 import { observe } from "../core/perception.js";
 import { doClick, doType, doSelect, doNavigate, doExtract } from "../core/actions.js";
@@ -222,7 +223,7 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
       }
       // Capture a checkpoint from the final page state before tearing down.
       const finalObs = await observe(page);
-      const artifact = buildArtifact(cfg, trace, finalObs, extracted);
+      const artifact = buildArtifact(cfg, trace, finalObs);
       return { status: "success", artifact, summary };
     }
 
@@ -337,7 +338,7 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
 async function handleEscalation(args: {
   cfg: DiscoveryConfig;
   logger: RunLogger;
-  page: import("playwright").Page;
+  page: Page;
   reason: string;
   stepId: string;
   trace: TraceStep[];
@@ -382,12 +383,7 @@ function dedupeTrace(trace: TraceStep[]): TraceStep[] {
   return kept.map((step, i) => ({ ...step, id: `step-${i}` }));
 }
 
-function buildArtifact(
-  cfg: DiscoveryConfig,
-  rawTrace: TraceStep[],
-  finalObs: PageObservation,
-  extracted: Record<string, string>
-): CapabilityArtifact {
+function buildArtifact(cfg: DiscoveryConfig, rawTrace: TraceStep[], finalObs: PageObservation): CapabilityArtifact {
   const trace = dedupeTrace(rawTrace);
   const heading = finalObs.summary.split(" -- ")[0]?.trim() || finalObs.title;
   return {

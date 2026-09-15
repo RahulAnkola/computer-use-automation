@@ -1,3 +1,4 @@
+import type { Page } from "playwright";
 import type { CapabilityArtifact, ArtifactStep, KnownOutcome } from "../core/artifact.js";
 import { createSharedSession } from "../core/session.js";
 import { doClick, doType, doSelect, doNavigate, doExtract } from "../core/actions.js";
@@ -60,7 +61,7 @@ function coerceOutputs(artifact: CapabilityArtifact, raw: Record<string, string>
 }
 
 async function findMatchingOutcome(
-  page: any,
+  page: Page,
   outcomes: KnownOutcome[],
   params: Record<string, string>
 ): Promise<KnownOutcome | undefined> {
@@ -138,7 +139,7 @@ export async function replayArtifact(artifact: CapabilityArtifact, opts: ReplayO
 }
 
 async function runStep(
-  page: import("playwright").Page,
+  page: Page,
   step: ArtifactStep,
   params: Record<string, string>,
   policy: GuardrailPolicy,
@@ -217,7 +218,7 @@ async function runStep(
 }
 
 async function performAction(
-  page: import("playwright").Page,
+  page: Page,
   step: ArtifactStep,
   params: Record<string, string>,
   extracted: Record<string, string>,

@@ -1,6 +1,6 @@
 import { parseArgs } from "./args.js";
 import { listInterventions, resolveIntervention } from "../core/escalation.js";
-import { attachToSharedSession } from "../core/session.js";
+import { attachToSharedSession, hasActiveSession } from "../core/session.js";
 import { doClick } from "../core/actions.js";
 
 /**
@@ -43,6 +43,13 @@ async function main() {
     const note = args.note ?? (cmd === "approve" ? "Operator approved manager override in the live session." : "Operator aborted the run.");
 
     if (cmd === "approve") {
+      if (!(await hasActiveSession())) {
+        console.error(
+          "No active session found. The discovery/replay run that raised this intervention must still be " +
+            "paused and waiting -- start it (or check it hasn't already timed out) before approving."
+        );
+        process.exit(1);
+      }
       // Take control of the live session and perform the actual manual step
       // a human operator would perform: click the manager-only approval
       // control that the agent was blocked (by policy) from clicking itself.

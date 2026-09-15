@@ -72,25 +72,27 @@ export class LocatorResolutionError extends Error {
   }
 }
 
-export async function doClick(page: Page, robust: RobustLocator): Promise<ActionResult & { attempts?: any[] }> {
+export type ActionExecResult = ActionResult & { attempts?: ResolvedLocator["attempts"] };
+
+export async function doClick(page: Page, robust: RobustLocator): Promise<ActionExecResult> {
   const resolved = await resolveLocator(page, robust);
   await resolved.locator.first().click();
   return { ok: true, attempts: resolved.attempts };
 }
 
-export async function doType(page: Page, robust: RobustLocator, text: string): Promise<ActionResult & { attempts?: any[] }> {
+export async function doType(page: Page, robust: RobustLocator, text: string): Promise<ActionExecResult> {
   const resolved = await resolveLocator(page, robust);
   await resolved.locator.first().fill(text);
   return { ok: true, attempts: resolved.attempts };
 }
 
-export async function doSelect(page: Page, robust: RobustLocator, value: string): Promise<ActionResult & { attempts?: any[] }> {
+export async function doSelect(page: Page, robust: RobustLocator, value: string): Promise<ActionExecResult> {
   const resolved = await resolveLocator(page, robust);
   await resolved.locator.first().selectOption(value);
   return { ok: true, attempts: resolved.attempts };
 }
 
-export async function doExtract(page: Page, robust: RobustLocator): Promise<ActionResult & { attempts?: any[] }> {
+export async function doExtract(page: Page, robust: RobustLocator): Promise<ActionExecResult> {
   const resolved = await resolveLocator(page, robust);
   const text = (await resolved.locator.first().textContent()) ?? "";
   return { ok: true, observed: text.trim(), attempts: resolved.attempts };
@@ -101,11 +103,3 @@ export async function doNavigate(page: Page, url: string): Promise<ActionResult>
   return { ok: true, observed: page.url() };
 }
 
-export async function doAssertText(page: Page, text: string, timeoutMs = 3000): Promise<ActionResult> {
-  try {
-    await page.getByText(text, { exact: false }).first().waitFor({ state: "visible", timeout: timeoutMs });
-    return { ok: true };
-  } catch (err: any) {
-    return { ok: false, error: String(err?.message ?? err) };
-  }
-}
