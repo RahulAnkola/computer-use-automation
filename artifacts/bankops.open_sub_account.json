@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "id": "bankops.open_sub_account",
+  "name": "bankops.open_sub_account",
+  "version": 1,
+  "description": "Look up a credit-union member and open a new self-service sub-account (deposit <= $10,000), reaching the confirmation screen.",
+  "goalTemplate": "Look up member {{memberId}} in BankOps Console and open a new {{accountType}} sub-account with an initial deposit of ${{depositAmount}}. Reach the confirmation screen and report the new sub-account id and confirmed balance.",
+  "target": {
+    "baseUrl": "http://localhost:4173",
+    "startPath": "/",
+    "allowedRoutes": [
+      "^\\/$",
+      "^\\/search",
+      "^\\/members(\\/.*)?$",
+      "^\\/interstitial\\/ack$"
+    ]
+  },
+  "inputs": [
+    {
+      "name": "memberId",
+      "type": "string",
+      "required": true,
+      "description": "5-digit member/account id to look up.",
+      "pattern": "^[0-9]{5}$",
+      "sensitive": false
+    },
+    {
+      "name": "accountType",
+      "type": "string",
+      "required": true,
+      "description": "Sub-account type to open.",
+      "pattern": "^(Sub-Savings|Sub-Checking)$",
+      "sensitive": false
+    },
+    {
+      "name": "depositAmount",
+      "type": "number",
+      "required": true,
+      "description": "Initial deposit amount in USD for the new sub-account.",
+      "sensitive": false
+    }
+  ],
+  "outputs": [
+    {
+      "name": "subAccountId",
+      "type": "string",
+      "description": "The newly created sub-account's id."
+    },
+    {
+      "name": "confirmedBalance",
+      "type": "string",
+      "description": "Balance shown on the confirmation screen."
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-0",
+      "description": "Type into \"Member ID or Name:\"",
+      "action": "type",
+      "locator": {
+        "primary": {
+          "strategy": "label",
+          "label": "Member ID or Name:"
+        },
+        "fallbacks": [
+          {
+            "strategy": "css",
+            "css": "form > table > tbody > tr > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "value": "{{memberId}}",
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-1",
+      "description": "Click \"Search\" (button)",
+      "action": "click",
+      "locator": {
+        "primary": {
+          "strategy": "role",
+          "role": "button",
+          "name": "Search"
+        },
+        "fallbacks": [
+          {
+            "strategy": "text",
+            "text": "Search",
+            "exact": false
+          },
+          {
+            "strategy": "css",
+            "css": "form > table > tbody > tr > td:nth-of-type(3) > button"
+          }
+        ]
+      },
+      "checkpoint": {
+        "urlContains": "/search"
+      },
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-2",
+      "description": "Click \"Open Record\" (link)",
+      "action": "click",
+      "locator": {
+        "primary": {
+          "strategy": "role",
+          "role": "link",
+          "name": "Open Record"
+        },
+        "fallbacks": [
+          {
+            "strategy": "text",
+            "text": "Open Record",
+            "exact": false
+          },
+          {
+            "strategy": "css",
+            "css": "td > table > tbody > tr:nth-of-type(2) > td:nth-of-type(4) > a"
+          }
+        ]
+      },
+      "checkpoint": {
+        "urlContains": "/members/{{memberId}}"
+      },
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-3",
+      "description": "Click \"Open Sub-Account\" (link)",
+      "action": "click",
+      "locator": {
+        "primary": {
+          "strategy": "role",
+          "role": "link",
+          "name": "Open Sub-Account"
+        },
+        "fallbacks": [
+          {
+            "strategy": "text",
+            "text": "Open Sub-Account",
+            "exact": false
+          },
+          {
+            "strategy": "css",
+            "css": "table:nth-of-type(2) > tbody > tr > td > p:nth-of-type(2) > a"
+          }
+        ]
+      },
+      "checkpoint": {
+        "urlContains": "/members/{{memberId}}/open-account"
+      },
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-4",
+      "description": "Type into \"Initial Deposit ($):\"",
+      "action": "type",
+      "locator": {
+        "primary": {
+          "strategy": "label",
+          "label": "Initial Deposit ($):"
+        },
+        "fallbacks": [
+          {
+            "strategy": "css",
+            "css": "form > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "value": "{{depositAmount}}",
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-5",
+      "description": "Click \"Continue\" (button)",
+      "action": "click",
+      "locator": {
+        "primary": {
+          "strategy": "role",
+          "role": "button",
+          "name": "Continue"
+        },
+        "fallbacks": [
+          {
+            "strategy": "text",
+            "text": "Continue",
+            "exact": false
+          },
+          {
+            "strategy": "css",
+            "css": "table:nth-of-type(2) > tbody > tr > td > form > button"
+          }
+        ]
+      },
+      "checkpoint": {
+        "urlContains": "/members/{{memberId}}/open-account"
+      },
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-6",
+      "description": "Click \"Confirm\" (button)",
+      "action": "click",
+      "locator": {
+        "primary": {
+          "strategy": "role",
+          "role": "button",
+          "name": "Confirm"
+        },
+        "fallbacks": [
+          {
+            "strategy": "text",
+            "text": "Confirm",
+            "exact": false
+          },
+          {
+            "strategy": "css",
+            "css": "table:nth-of-type(2) > tbody > tr > td > form > button"
+          }
+        ]
+      },
+      "checkpoint": {
+        "urlContains": "/members/{{memberId}}/open-account/confirm"
+      },
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-7",
+      "description": "Extract \"New Sub-Account ID\" as subAccountId",
+      "action": "extract",
+      "locator": {
+        "primary": {
+          "strategy": "cell",
+          "label": "New Sub-Account ID"
+        },
+        "fallbacks": [
+          {
+            "strategy": "css",
+            "css": "tr > td > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)"
+          }
+        ]
+      },
+      "extractAs": "subAccountId",
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    },
+    {
+      "id": "step-8",
+      "description": "Extract \"Balance\" as confirmedBalance",
+      "action": "extract",
+      "locator": {
+        "primary": {
+          "strategy": "cell",
+          "label": "Balance"
+        },
+        "fallbacks": [
+          {
+            "strategy": "css",
+            "css": "tr > td > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2)"
+          }
+        ]
+      },
+      "extractAs": "confirmedBalance",
+      "riskLevel": "safe",
+      "possibleOutcomes": []
+    }
+  ],
+  "successCheckpoint": {
+    "textContains": "Sub-account opened successfully."
+  },
+  "knownOutcomes": [
+    {
+      "code": "MEMBER_NOT_FOUND",
+      "description": "No member record matches the given member ID.",
+      "detect": {
+        "textContains": "No members found matching"
+      },
+      "resultType": "business_outcome"
+    },
+    {
+      "code": "PERMISSION_DENIED",
+      "description": "The member's account is restricted; self-service actions are not permitted.",
+      "detect": {
+        "textContains": "restricted"
+      },
+      "resultType": "business_outcome"
+    },
+    {
+      "code": "VALIDATION_ERROR",
+      "description": "The deposit amount failed a business validation rule (non-positive or non-numeric).",
+      "detect": {
+        "textContains": "Deposit must be a positive number"
+      },
+      "resultType": "business_outcome"
+    },
+    {
+      "code": "DEPOSIT_LIMIT_EXCEEDED",
+      "description": "The deposit amount exceeds the hard maximum allowed by the application.",
+      "detect": {
+        "textContains": "exceeds the maximum allowed"
+      },
+      "resultType": "business_outcome"
+    }
+  ],
+  "riskLevel": "safe",
+  "approvalStatus": "draft",
+  "provenance": {
+    "discoveryRunId": "discover-bankops_open_sub_account-1789448974006",
+    "model": "gemini-flash-lite-latest",
+    "recordedAt": "2026-09-15T05:11:31.944Z"
+  }
+}

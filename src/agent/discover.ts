@@ -100,13 +100,20 @@ const TOOLS: FunctionDeclaration[] = [
   },
 ];
 
-function systemPrompt(goal: string, policy: GuardrailPolicy): string {
+function systemPrompt(goal: string, policy: GuardrailPolicy, outputSpecs: OutputSpec[]): string {
+  const outputList = outputSpecs.length
+    ? outputSpecs.map((o) => `"${o.name}"${o.description ? ` (${o.description})` : ""}`).join(", ")
+    : "(none declared)";
   return `You are an automation agent operating "BankOps Console", a legacy internal back-office web
 application for a credit union, on behalf of a human operator. You interact with the page only
 through the provided tools: click, type, select, navigate, extract, request_human, finish.
 
 Your goal for this run:
 "${goal}"
+
+This capability must report these exact outputs when you extract data: ${outputList}.
+When you call "extract", use one of those exact names as outputName -- do not invent your own
+names, and do not extract the same value more than once.
 
 Rules:
 - Only act within this domain: ${policy.allowedDomains.join(", ")}. Never navigate elsewhere.
@@ -162,6 +169,16 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
   const session = await createSharedSession({ headless: cfg.headless });
   const { page } = session;
 
+  try {
+    return await runLoop();
+  } catch (err: any) {
+    await logger.log("error", { message: `Discovery crashed: ${String(err?.message ?? err)}` });
+    return { status: "failed", summary: `Discovery crashed: ${String(err?.message ?? err)}` };
+  } finally {
+    await session.close();
+  }
+
+  async function runLoop(): Promise<DiscoveryResult> {
   const startUrl = new URL(cfg.startPath, cfg.targetBaseUrl).toString();
   assertDomainAllowed(policy, startUrl);
   assertRouteAllowed(policy, startUrl);
@@ -174,7 +191,7 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
   let stepCounter = 0;
   let consecutiveInvalid = 0;
 
-  const sys = systemPrompt(cfg.goal, policy);
+  const sys = systemPrompt(cfg.goal, policy, cfg.outputSpecs);
 
   for (let i = 0; i < policy.maxSteps; i++) {
     const dismissed = await dismissKnownInterstitials(page);
@@ -201,13 +218,11 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
       const summary = String(call.args.summary ?? "");
       await logger.log("outcome", { status: success ? "success" : "failed", summary });
       if (!success) {
-        await session.close();
         return { status: "failed", summary };
       }
       // Capture a checkpoint from the final page state before tearing down.
       const finalObs = await observe(page);
       const artifact = buildArtifact(cfg, trace, finalObs, extracted);
-      await session.close();
       return { status: "success", artifact, summary };
     }
 
@@ -320,8 +335,8 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
   }
 
   await logger.log("outcome", { status: "failed", summary: "Max steps reached without finishing" });
-  await session.close();
   return { status: "failed", summary: "Max steps reached without finishing" };
+  }
 }
 
 async function handleEscalation(args: {
@@ -359,12 +374,27 @@ async function handleEscalation(args: {
   await logger.log("escalation_resolved", { interventionId: intervention.id, resolution: resolved.resolution });
 }
 
+/** Drop redundant re-extractions of the same output (the model occasionally
+ *  extracts a value more than once when it's unsure a prior call landed) --
+ *  keep only the last one, then renumber step ids to stay contiguous. */
+function dedupeTrace(trace: TraceStep[]): TraceStep[] {
+  const lastIndexForExtract = new Map<string, number>();
+  trace.forEach((step, i) => {
+    if (step.action === "extract" && step.extractAs) lastIndexForExtract.set(step.extractAs, i);
+  });
+  const kept = trace.filter(
+    (step, i) => step.action !== "extract" || !step.extractAs || lastIndexForExtract.get(step.extractAs) === i
+  );
+  return kept.map((step, i) => ({ ...step, id: `step-${i}` }));
+}
+
 function buildArtifact(
   cfg: DiscoveryConfig,
-  trace: TraceStep[],
+  rawTrace: TraceStep[],
   finalObs: PageObservation,
   extracted: Record<string, string>
 ): CapabilityArtifact {
+  const trace = dedupeTrace(rawTrace);
   const heading = finalObs.summary.split(" -- ")[0]?.trim() || finalObs.title;
   return {
     schemaVersion: 1,

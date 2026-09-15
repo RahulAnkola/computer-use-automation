@@ -1,0 +1,6 @@
+{
+  "status": "business_outcome",
+  "code": "PERMISSION_DENIED",
+  "message": "The member's account is restricted; self-service actions are not permitted.",
+  "outputs": {}
+}

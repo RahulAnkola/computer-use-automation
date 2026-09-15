@@ -56,7 +56,14 @@ const memberNotFound: KnownOutcome = {
 const permissionDenied: KnownOutcome = {
   code: "PERMISSION_DENIED",
   description: "The member's account is restricted; self-service actions are not permitted.",
-  detect: { textContains: "not permitted for restricted accounts" },
+  // Two different pages can show this, depending on where the flow stops:
+  // the member record page never even renders the action's link/button for
+  // a restricted account ("Account actions restricted..."), and a direct
+  // hit on the guarded route renders a dedicated 403 page ("not permitted
+  // for restricted accounts"). A capability step that clicks the link can
+  // only ever observe the former; detect both so the outcome is caught
+  // regardless of which step in the flow first notices the restriction.
+  detect: { textContains: "restricted" }, // matches both "Account actions restricted..." and "...not permitted for restricted accounts"
   resultType: "business_outcome",
 };
 

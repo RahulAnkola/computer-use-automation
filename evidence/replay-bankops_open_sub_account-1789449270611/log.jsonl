@@ -1,0 +1,12 @@
+{"ts":"2026-09-15T05:14:30.737Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"start","capability":"bankops.open_sub_account","version":1,"inputs":{"memberId":"10023","accountType":"Sub-Savings","depositAmount":"-50"},"headless":true}
+{"ts":"2026-09-15T05:14:30.754Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","action":"navigate","url":"http://localhost:4173/"}
+{"ts":"2026-09-15T05:14:30.778Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-0","action":"type","description":"Type into \"Member ID or Name:\"","attempt":1}
+{"ts":"2026-09-15T05:14:30.839Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-1","action":"click","description":"Click \"Search\" (button)","attempt":1}
+{"ts":"2026-09-15T05:14:30.885Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-2","action":"click","description":"Click \"Open Record\" (link)","attempt":1}
+{"ts":"2026-09-15T05:14:30.959Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"recovered","step":"step-3","message":"Dismissed a known interstitial before proceeding"}
+{"ts":"2026-09-15T05:14:30.991Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-3","action":"click","description":"Click \"Open Sub-Account\" (link)","attempt":1}
+{"ts":"2026-09-15T05:14:31.007Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-4","action":"type","description":"Type into \"Initial Deposit ($):\"","attempt":1}
+{"ts":"2026-09-15T05:14:31.065Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"act","step":"step-5","action":"click","description":"Click \"Continue\" (button)","attempt":1}
+{"ts":"2026-09-15T05:14:37.143Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"retry","step":"step-6","attempt":1,"message":"Checkpoint not met after step: {\"urlContains\":\"/members/{{memberId}}/open-account/confirm\"}"}
+{"ts":"2026-09-15T05:14:43.725Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"retry","step":"step-6","attempt":2,"message":"Checkpoint not met after step: {\"urlContains\":\"/members/{{memberId}}/open-account/confirm\"}"}
+{"ts":"2026-09-15T05:14:43.742Z","runId":"replay-bankops_open_sub_account-1789449270611","kind":"outcome","status":"business_outcome","code":"VALIDATION_ERROR","step":"step-6"}

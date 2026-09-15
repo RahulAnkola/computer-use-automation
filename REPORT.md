@@ -14,7 +14,7 @@ be kept in sync with the agent, it's the same action-execution machinery
 minus the decision loop.
 
 **Stack:** TypeScript/Node, Playwright for the browser surface, Gemini
-(`gemini-2.5-flash`, via `@google/genai`) for the LLM, Zod for the artifact
+(`gemini-flash-lite-latest`, via `@google/genai`) for the LLM, Zod for the artifact
 schema, Express for the mock target app, Vitest for tests. Gemini rather
 than an Anthropic model because the assignment explicitly leaves the
 provider as "your call" and I wanted to use my own key rather than route

@@ -59,9 +59,13 @@ function coerceOutputs(artifact: CapabilityArtifact, raw: Record<string, string>
   return out;
 }
 
-async function findMatchingOutcome(page: any, outcomes: KnownOutcome[]): Promise<KnownOutcome | undefined> {
+async function findMatchingOutcome(
+  page: any,
+  outcomes: KnownOutcome[],
+  params: Record<string, string>
+): Promise<KnownOutcome | undefined> {
   for (const outcome of outcomes) {
-    if (await checkpointHolds(page, outcome.detect)) return outcome;
+    if (await checkpointHolds(page, outcome.detect, params)) return outcome;
   }
   return undefined;
 }
@@ -110,7 +114,7 @@ export async function replayArtifact(artifact: CapabilityArtifact, opts: ReplayO
       if (result) return result; // early terminal outcome (business outcome / error / escalated-and-aborted)
     }
 
-    const finalOk = await checkpointHolds(page, artifact.successCheckpoint);
+    const finalOk = await checkpointHolds(page, artifact.successCheckpoint, params);
     if (!finalOk) {
       const observed = await observe(page).catch(() => undefined);
       await logger.log("error", { message: "Success checkpoint not met at end of run", observed: observed?.summary });
@@ -176,7 +180,7 @@ async function runStep(
       if (dismissed) await logger.log("recovered", { step: step.id, message: "Dismissed a known interstitial before proceeding" });
       assertActionTypeAllowed(policy, step.action);
       await performAction(page, step, params, extracted, policy);
-      const ok = await checkpointHolds(page, step.checkpoint);
+      const ok = await checkpointHolds(page, step.checkpoint, params);
       if (!ok) throw new Error(`Checkpoint not met after step: ${JSON.stringify(step.checkpoint)}`);
       await logger.log("act", { step: step.id, action: step.action, description: step.description, attempt: attempt + 1 });
       return undefined; // step succeeded, move on
@@ -193,7 +197,7 @@ async function runStep(
 
   // Exhausted retries: classify against the artifact's known-outcome taxonomy
   // before giving up. This is the "business outcome vs failure" seam.
-  const match = await findMatchingOutcome(page, knownOutcomes);
+  const match = await findMatchingOutcome(page, knownOutcomes, params);
   if (match) {
     await logger.log("outcome", { status: match.resultType, code: match.code, step: step.id });
     if (match.resultType === "business_outcome" || match.resultType === "recoverable") {

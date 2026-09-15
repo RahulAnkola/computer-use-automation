@@ -1,0 +1,9 @@
+{"ts":"2026-09-15T05:15:57.024Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"start","capability":"bankops.open_sub_account","version":1,"inputs":{"memberId":"90011","accountType":"Sub-Savings","depositAmount":"500"},"headless":true}
+{"ts":"2026-09-15T05:15:57.033Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"act","action":"navigate","url":"http://localhost:4173/"}
+{"ts":"2026-09-15T05:15:57.057Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"act","step":"step-0","action":"type","description":"Type into \"Member ID or Name:\"","attempt":1}
+{"ts":"2026-09-15T05:15:57.105Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"act","step":"step-1","action":"click","description":"Click \"Search\" (button)","attempt":1}
+{"ts":"2026-09-15T05:15:57.155Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"act","step":"step-2","action":"click","description":"Click \"Open Record\" (link)","attempt":1}
+{"ts":"2026-09-15T05:15:57.227Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"recovered","step":"step-3","message":"Dismissed a known interstitial before proceeding"}
+{"ts":"2026-09-15T05:16:06.241Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"retry","step":"step-3","attempt":1,"message":"Could not resolve locator via any strategy"}
+{"ts":"2026-09-15T05:16:15.764Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"retry","step":"step-3","attempt":2,"message":"Could not resolve locator via any strategy"}
+{"ts":"2026-09-15T05:16:15.770Z","runId":"replay-bankops_open_sub_account-1789449356896","kind":"outcome","status":"business_outcome","code":"PERMISSION_DENIED","step":"step-3"}

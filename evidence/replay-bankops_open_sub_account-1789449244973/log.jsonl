@@ -1,0 +1,7 @@
+{"ts":"2026-09-15T05:14:05.099Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"start","capability":"bankops.open_sub_account","version":1,"inputs":{"memberId":"99999","accountType":"Sub-Savings","depositAmount":"500"},"headless":true}
+{"ts":"2026-09-15T05:14:05.109Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"act","action":"navigate","url":"http://localhost:4173/"}
+{"ts":"2026-09-15T05:14:05.133Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"act","step":"step-0","action":"type","description":"Type into \"Member ID or Name:\"","attempt":1}
+{"ts":"2026-09-15T05:14:05.181Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"act","step":"step-1","action":"click","description":"Click \"Search\" (button)","attempt":1}
+{"ts":"2026-09-15T05:14:14.203Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"retry","step":"step-2","attempt":1,"message":"Could not resolve locator via any strategy"}
+{"ts":"2026-09-15T05:14:23.727Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"retry","step":"step-2","attempt":2,"message":"Could not resolve locator via any strategy"}
+{"ts":"2026-09-15T05:14:23.735Z","runId":"replay-bankops_open_sub_account-1789449244973","kind":"outcome","status":"business_outcome","code":"MEMBER_NOT_FOUND","step":"step-2"}

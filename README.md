@@ -51,16 +51,19 @@ cp .env.example .env              # then fill in GEMINI_API_KEY
 
 ```
 GEMINI_API_KEY=your-key-here
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-flash-lite-latest
 ```
 
-Get a free key at https://aistudio.google.com/apikey. **Note:** the free
-tier is rate-limited to a handful of requests/minute. The discovery agent
-makes one LLM call per observed step (~10-15 calls for these flows) and
-will hit that limit — it retries with backoff automatically (you'll see
-`[llm] Rate limited ... waiting Ns` in the output), so a discovery run can
-take several minutes on a free key. This does not affect replay at all;
-replay never calls the LLM.
+Get a free key at https://aistudio.google.com/apikey. **Note:** free-tier
+Gemini quotas are tight and are enforced *per model, per day* (not just
+per-minute) — `gemini-2.5-flash`'s free quota is 20 requests/day, which a
+single discovery run can exhaust on its own. `gemini-flash-lite-latest` has
+a separate, more generous quota and is the default here for that reason.
+The discovery agent also throttles itself to roughly one call per 13s and
+retries on 429s with backoff (you'll see `[llm] Rate limited ... waiting
+Ns` in the output), so a discovery run still takes a few minutes even when
+quota isn't an issue. None of this affects replay: replay never calls the
+LLM.
 
 Run the test suite (no API key needed — these never call an LLM):
 

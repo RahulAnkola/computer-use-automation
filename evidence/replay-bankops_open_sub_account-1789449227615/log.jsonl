@@ -1,0 +1,13 @@
+{"ts":"2026-09-15T05:13:47.742Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"start","capability":"bankops.open_sub_account","version":1,"inputs":{"memberId":"10023","accountType":"Sub-Savings","depositAmount":"500"},"headless":true}
+{"ts":"2026-09-15T05:13:47.756Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","action":"navigate","url":"http://localhost:4173/"}
+{"ts":"2026-09-15T05:13:47.780Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-0","action":"type","description":"Type into \"Member ID or Name:\"","attempt":1}
+{"ts":"2026-09-15T05:13:47.840Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-1","action":"click","description":"Click \"Search\" (button)","attempt":1}
+{"ts":"2026-09-15T05:13:47.884Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-2","action":"click","description":"Click \"Open Record\" (link)","attempt":1}
+{"ts":"2026-09-15T05:13:47.955Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"recovered","step":"step-3","message":"Dismissed a known interstitial before proceeding"}
+{"ts":"2026-09-15T05:13:47.988Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-3","action":"click","description":"Click \"Open Sub-Account\" (link)","attempt":1}
+{"ts":"2026-09-15T05:13:48.002Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-4","action":"type","description":"Type into \"Initial Deposit ($):\"","attempt":1}
+{"ts":"2026-09-15T05:13:48.063Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-5","action":"click","description":"Click \"Continue\" (button)","attempt":1}
+{"ts":"2026-09-15T05:13:48.116Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-6","action":"click","description":"Click \"Confirm\" (button)","attempt":1}
+{"ts":"2026-09-15T05:13:48.131Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-7","action":"extract","description":"Extract \"New Sub-Account ID\" as subAccountId","attempt":1}
+{"ts":"2026-09-15T05:13:48.135Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"act","step":"step-8","action":"extract","description":"Extract \"Balance\" as confirmedBalance","attempt":1}
+{"ts":"2026-09-15T05:13:48.136Z","runId":"replay-bankops_open_sub_account-1789449227615","kind":"outcome","status":"success","outputs":{"subAccountId":"SUB-501","confirmedBalance":"$500.00"}}

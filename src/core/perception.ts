@@ -169,10 +169,15 @@ const COLLECT_SCRIPT = `(() => {
 
 const SUMMARY_SCRIPT = `(() => {
   const title = document.title;
-  const heading = document.querySelector('b, h1, h2, h3');
+  // Prefer the first <p> as the page-specific "gist" -- this app's templates
+  // always put the actual state message there ("Sub-account opened
+  // successfully.", "No members found matching..."). A generic b/h1-3
+  // selector is unreliable here because the site masthead ("BankOps
+  // Console") is itself a <b> and would win on every single page.
+  const gist = document.querySelector('p') || document.querySelector('h1, h2, h3');
   const bodyText = document.body ? document.body.innerText : '';
   const trimmed = bodyText.replace(/\\s+/g, ' ').trim().slice(0, 1200);
-  return { title, heading: heading ? heading.textContent.trim() : '', text: trimmed };
+  return { title, heading: gist ? gist.textContent.trim() : '', text: trimmed };
 })()`;
 
 function buildLocator(raw: RawElement, sameNameCount: number, index: number): RobustLocator {
