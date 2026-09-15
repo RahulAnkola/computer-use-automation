@@ -1,0 +1,35 @@
+{
+  "name": "computer-use-automation",
+  "version": "1.0.0",
+  "description": "LLM-driven computer-use automation for legacy back-office UIs: discover once, replay deterministically.",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "mock-app": "tsx src/mock-app/server.ts",
+    "discover": "tsx src/cli/discover.ts",
+    "replay": "tsx src/cli/replay.ts",
+    "operator": "tsx src/cli/operator.ts",
+    "catalog": "tsx src/cli/catalog.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.22.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nanoid": "^6.0.1",
+    "playwright": "^1.63.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.5.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  }
+}
