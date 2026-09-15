@@ -73,8 +73,6 @@ export const StepSchema = z.object({
   extractAs: z.string().optional(), // output key this step's extracted value feeds
   checkpoint: CheckpointSchema.optional(),
   riskLevel: RiskLevel.default("safe"),
-  /** Runtime outcomes this specific step is known to be able to produce (see KnownOutcome). */
-  possibleOutcomes: z.array(z.string()).default([]),
 });
 export type ArtifactStep = z.infer<typeof StepSchema>;
 

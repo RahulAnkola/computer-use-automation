@@ -11,7 +11,7 @@ const minimalValid = {
   target: { baseUrl: "http://localhost:4173", startPath: "/", allowedRoutes: ["^/$"] },
   inputs: [{ name: "memberId", type: "string", required: true, sensitive: false }],
   outputs: [{ name: "result", type: "string" }],
-  steps: [{ id: "s0", description: "Navigate", action: "navigate", url: "/", riskLevel: "safe", possibleOutcomes: [] }],
+  steps: [{ id: "s0", description: "Navigate", action: "navigate", url: "/", riskLevel: "safe" }],
   successCheckpoint: { textContains: "done" },
   knownOutcomes: [],
   riskLevel: "safe",
@@ -39,7 +39,6 @@ describe("CapabilityArtifact schema", () => {
           action: "click",
           locator: { primary: { strategy: "xpath", css: "//div" }, fallbacks: [] },
           riskLevel: "safe",
-          possibleOutcomes: [],
         },
       ],
     };
@@ -47,7 +46,7 @@ describe("CapabilityArtifact schema", () => {
   });
 
   it("rejects an unknown action type", () => {
-    const bad = { ...minimalValid, steps: [{ id: "s0", description: "?", action: "hover", riskLevel: "safe", possibleOutcomes: [] }] };
+    const bad = { ...minimalValid, steps: [{ id: "s0", description: "?", action: "hover", riskLevel: "safe" }] };
     expect(() => parseArtifact(bad)).toThrow();
   });
 
@@ -64,7 +63,7 @@ describe("CapabilityArtifact schema", () => {
       ...minimalValid,
       steps: [
         ...minimalValid.steps,
-        { id: "s1", description: "Escalate to manager", action: "escalate", riskLevel: "risky", possibleOutcomes: ["ESCALATED"] },
+        { id: "s1", description: "Escalate to manager", action: "escalate", riskLevel: "risky" },
       ],
       knownOutcomes: [
         {

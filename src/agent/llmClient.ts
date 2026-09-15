@@ -1,7 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Content, FunctionDeclaration } from "@google/genai";
 
-function extractRetryDelaySeconds(err: any): number | undefined {
+/** Exported for testing: parses the retry delay Gemini's 429 responses
+ *  suggest, either from the free-text message or the structured RetryInfo
+ *  detail (real APIs have sent both shapes during development). */
+export function extractRetryDelaySeconds(err: any): number | undefined {
   const message: string | undefined = err?.message ?? err?.error?.message;
   const match = message?.match(/retry in ([\d.]+)s/i);
   if (match) return Math.ceil(Number(match[1])) + 1;

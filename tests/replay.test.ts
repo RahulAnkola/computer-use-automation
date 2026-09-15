@@ -38,7 +38,7 @@ function makeArtifact(overrides: Partial<CapabilityArtifact> = {}): CapabilityAr
     inputs: [{ name: "memberId", type: "string", required: true, pattern: "^[0-9]{5}$", sensitive: false }],
     outputs: [{ name: "savingsBalance", type: "string" }],
     steps: [
-      { id: "s0", description: "Search for the member", action: "navigate", url: "/search?q={{memberId}}", riskLevel: "safe", possibleOutcomes: [] },
+      { id: "s0", description: "Search for the member", action: "navigate", url: "/search?q={{memberId}}", riskLevel: "safe" },
       {
         id: "s1",
         description: "Open the member's record",
@@ -46,7 +46,6 @@ function makeArtifact(overrides: Partial<CapabilityArtifact> = {}): CapabilityAr
         locator: { primary: { strategy: "role", role: "link", name: "Open Record" }, fallbacks: [] },
         checkpoint: { urlContains: "/members/" },
         riskLevel: "safe",
-        possibleOutcomes: ["MEMBER_NOT_FOUND"],
       },
       {
         id: "s2",
@@ -55,7 +54,6 @@ function makeArtifact(overrides: Partial<CapabilityArtifact> = {}): CapabilityAr
         locator: { primary: { strategy: "cell", label: "Savings Balance" }, fallbacks: [] },
         extractAs: "savingsBalance",
         riskLevel: "safe",
-        possibleOutcomes: [],
       },
     ],
     successCheckpoint: { textContains: "Savings Balance" },

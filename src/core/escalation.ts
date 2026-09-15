@@ -30,6 +30,10 @@ export interface InterventionRequest {
   reason: string;
   screenshotPath?: string;
   createdAt: string;
+  /** Monotonic per-process counter, used to order interventions raised
+   *  within the same millisecond -- ISO timestamp string comparison alone
+   *  isn't a reliable sort key at that resolution. */
+  seq: number;
   resolution?: {
     resolvedAt: string;
     operator: string;
@@ -48,8 +52,10 @@ function filePath(id: string): string {
   return path.join(DIR, `${id}.json`);
 }
 
+let seqCounter = 0;
+
 export async function raiseIntervention(
-  input: Omit<InterventionRequest, "id" | "status" | "createdAt">
+  input: Omit<InterventionRequest, "id" | "status" | "createdAt" | "seq">
 ): Promise<InterventionRequest> {
   await ensureDir();
   const record: InterventionRequest = {
@@ -57,6 +63,7 @@ export async function raiseIntervention(
     id: randomUUID().slice(0, 8),
     status: "pending",
     createdAt: new Date().toISOString(),
+    seq: seqCounter++,
   };
   await writeFile(filePath(record.id), JSON.stringify(record, null, 2), "utf8");
   return record;
@@ -73,7 +80,7 @@ export async function listInterventions(): Promise<InterventionRequest[]> {
   const records = await Promise.all(
     files.filter((f) => f.endsWith(".json")).map((f) => readFile(path.join(DIR, f), "utf8").then((r) => JSON.parse(r)))
   );
-  return records.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  return records.sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.seq - b.seq);
 }
 
 export async function resolveIntervention(

@@ -248,7 +248,6 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
           action: "navigate",
           url: templatizeString(new URL(url).pathname + new URL(url).search, cfg.paramValues),
           riskLevel: "safe",
-          possibleOutcomes: [],
         });
         progress.push(`Navigated to ${url}`);
       } else if (!element) {
@@ -278,7 +277,6 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
           locator: templatizeRobustLocator(element.locator, cfg.paramValues),
           checkpoint: { urlContains: templatizeString(new URL(page.url()).pathname, cfg.paramValues) },
           riskLevel: "safe",
-          possibleOutcomes: [],
         });
         progress.push(`Clicked "${element.name}"`);
       } else if (call.name === "type") {
@@ -291,7 +289,6 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
           locator: templatizeRobustLocator(element.locator, cfg.paramValues),
           value: templatizeString(text, cfg.paramValues),
           riskLevel: "safe",
-          possibleOutcomes: [],
         });
         progress.push(`Typed "${text}" into "${element.name}"`);
       } else if (call.name === "select") {
@@ -304,7 +301,6 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
           locator: templatizeRobustLocator(element.locator, cfg.paramValues),
           value: templatizeString(value, cfg.paramValues),
           riskLevel: "safe",
-          possibleOutcomes: [],
         });
         progress.push(`Selected "${value}" in "${element.name}"`);
       } else if (call.name === "extract") {
@@ -318,7 +314,6 @@ export async function runDiscovery(cfg: DiscoveryConfig): Promise<DiscoveryResul
           locator: templatizeRobustLocator(element.locator, cfg.paramValues),
           extractAs: outputName,
           riskLevel: "safe",
-          possibleOutcomes: [],
         });
         progress.push(`Extracted ${outputName} = "${result.observed}"`);
       }
@@ -367,7 +362,6 @@ async function handleEscalation(args: {
     description: `Escalate to human operator: ${reason}`,
     action: "escalate",
     riskLevel: "risky",
-    possibleOutcomes: ["ESCALATED"],
   });
 
   const resolved = await waitForResolution(intervention.id);

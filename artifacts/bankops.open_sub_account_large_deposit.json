@@ -70,8 +70,7 @@
         ]
       },
       "value": "{{memberId}}",
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-1",
@@ -98,8 +97,7 @@
       "checkpoint": {
         "urlContains": "/search"
       },
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-2",
@@ -126,8 +124,7 @@
       "checkpoint": {
         "urlContains": "/members/{{memberId}}"
       },
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-3",
@@ -154,8 +151,7 @@
       "checkpoint": {
         "urlContains": "/members/{{memberId}}/open-account"
       },
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-4",
@@ -174,8 +170,7 @@
         ]
       },
       "value": "{{depositAmount}}",
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-5",
@@ -202,17 +197,13 @@
       "checkpoint": {
         "urlContains": "/members/{{memberId}}/open-account"
       },
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-6",
       "description": "Escalate to human operator: The initial deposit of $15000 exceeds the $10,000 self-service limit and requires manager approval. As instructed, I must not approve it myself and need a manager operator to approve it.",
       "action": "escalate",
-      "riskLevel": "risky",
-      "possibleOutcomes": [
-        "ESCALATED"
-      ]
+      "riskLevel": "risky"
     },
     {
       "id": "step-7",
@@ -231,8 +222,7 @@
         ]
       },
       "extractAs": "subAccountId",
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     },
     {
       "id": "step-8",
@@ -251,8 +241,7 @@
         ]
       },
       "extractAs": "confirmedBalance",
-      "riskLevel": "safe",
-      "possibleOutcomes": []
+      "riskLevel": "safe"
     }
   ],
   "successCheckpoint": {
