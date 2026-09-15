@@ -1,47 +1,51 @@
 import { chromium } from "playwright";
-import type { Browser, BrowserContext, Page, BrowserServer } from "playwright";
-import { writeFile, readFile, rm } from "node:fs/promises";
+import type { Browser, BrowserContext, Page } from "playwright";
+import { writeFile, readFile, rm, mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const WS_FILE = path.resolve(process.cwd(), ".escalations", "session.ws");
+const CDP_FILE = path.resolve(process.cwd(), ".escalations", "session.cdp");
+const DEFAULT_CDP_PORT = 9955;
 
 /**
- * A "live session" the automation and a human operator can share. Backed by
- * a Playwright browser *server* (a real OS-level browser process) whose
- * WebSocket endpoint we persist to disk. Any process -- the discovery/replay
- * runner, or a separate `operator` CLI invocation -- can connect to that
- * same endpoint and get the same browser, same context, same open page.
- * This is what makes the human-in-the-loop handoff a transfer of control
- * over one live session rather than a description of one.
+ * A "live session" the automation and a human operator can share.
+ *
+ * This has to be genuine cross-*process* shared state, not just an
+ * in-memory handle -- the whole point of the escalation handoff is that a
+ * *different* process (the `operator` CLI, run from a separate terminal)
+ * takes control of the exact browser tab the automation was using.
+ *
+ * Playwright's own `browserType.connect()` to a `launchServer()` endpoint
+ * does NOT give you this: each `connect()` call gets an isolated client
+ * session that can't see contexts/pages created by another connection (it's
+ * designed for spreading independent test workers across one browser
+ * process, not for two clients sharing one page). Real Chrome DevTools
+ * Protocol (`connectOverCDP`) is a single global namespace on the browser
+ * process itself, so a second process connecting to the same CDP port
+ * really does see the same contexts and pages. Hence: launch with a fixed
+ * remote-debugging port, persist that port, and have the operator process
+ * `connectOverCDP` to it.
  */
 export interface SharedSession {
-  browserServer: BrowserServer;
   browser: Browser;
   context: BrowserContext;
   page: Page;
   close(): Promise<void>;
 }
 
-export async function createSharedSession(opts: { headless: boolean }): Promise<SharedSession> {
-  const browserServer = await chromium.launchServer({ headless: opts.headless });
-  const wsEndpoint = browserServer.wsEndpoint();
-  await writeFile(WS_FILE, wsEndpoint, "utf8").catch(async (err) => {
-    // .escalations dir may not exist yet on a clean checkout
-    await import("node:fs/promises").then((fs) => fs.mkdir(path.dirname(WS_FILE), { recursive: true }));
-    await writeFile(WS_FILE, wsEndpoint, "utf8");
-  });
-  const browser = await chromium.connect(wsEndpoint);
+export async function createSharedSession(opts: { headless: boolean; cdpPort?: number }): Promise<SharedSession> {
+  const port = opts.cdpPort ?? DEFAULT_CDP_PORT;
+  const browser = await chromium.launch({ headless: opts.headless, args: [`--remote-debugging-port=${port}`] });
+  await mkdir(path.dirname(CDP_FILE), { recursive: true });
+  await writeFile(CDP_FILE, String(port), "utf8");
   const context = await browser.newContext();
   const page = await context.newPage();
   return {
-    browserServer,
     browser,
     context,
     page,
     async close() {
       await browser.close().catch(() => undefined);
-      await browserServer.close().catch(() => undefined);
-      await rm(WS_FILE, { force: true }).catch(() => undefined);
+      await rm(CDP_FILE, { force: true }).catch(() => undefined);
     },
   };
 }
@@ -49,8 +53,8 @@ export async function createSharedSession(opts: { headless: boolean }): Promise<
 /** Used by a separate process (the operator CLI) to attach to a session
  *  another process created, and grab its live page. */
 export async function attachToSharedSession(): Promise<{ browser: Browser; page: Page }> {
-  const wsEndpoint = await readFile(WS_FILE, "utf8");
-  const browser = await chromium.connect(wsEndpoint.trim());
+  const port = (await readFile(CDP_FILE, "utf8")).trim();
+  const browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
   const contexts = browser.contexts();
   const context = contexts[contexts.length - 1];
   if (!context) throw new Error("No browser context found on the shared session");
@@ -62,7 +66,7 @@ export async function attachToSharedSession(): Promise<{ browser: Browser; page:
 
 export async function hasActiveSession(): Promise<boolean> {
   try {
-    await readFile(WS_FILE, "utf8");
+    await readFile(CDP_FILE, "utf8");
     return true;
   } catch {
     return false;

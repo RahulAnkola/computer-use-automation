@@ -71,7 +71,12 @@ export function isRiskyRoute(policy: GuardrailPolicy, url: string): boolean {
 const SENSITIVE_KEY_PATTERN = /pass(word)?|token|secret|api[-_]?key|ssn|social.?security|credit.?card|cvv/i;
 const SSN_PATTERN = /\b\d{3}-\d{2}-\d{4}\b/g;
 const CARD_PATTERN = /\b(?:\d[ -]?){13,19}\b/g;
-const LONG_TOKEN_PATTERN = /\b[A-Za-z0-9_-]{24,}\b/g;
+// Real secrets (API keys, JWTs, session ids) are long, contain digits, and
+// are not underscore_separated_words -- that shape is what distinguishes
+// them from ordinary identifiers like a capability name
+// ("open_sub_account_large_deposit"), which must NOT be redacted or the
+// logs stop being useful for debugging.
+const LONG_TOKEN_PATTERN = /\b(?=[A-Za-z0-9.-]{24,}\b)(?=[A-Za-z0-9.-]*[0-9])[A-Za-z0-9.-]{24,}\b/g;
 
 /** Redact obvious secrets/PII shapes from a free-text string before it is logged or persisted. */
 export function redactText(input: string): string {

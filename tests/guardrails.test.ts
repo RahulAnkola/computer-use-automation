@@ -53,6 +53,15 @@ describe("guardrails: redaction", () => {
     expect(out).not.toContain("abcdefghijklmnopqrstuvwxyz");
   });
 
+  it("does not redact ordinary underscore-separated identifiers (capability/run names)", () => {
+    // Regression test: a real bug hit during development where capability
+    // names like "bankops.open_sub_account_large_deposit" (long,
+    // underscore-separated, no digits) were being mistaken for secrets and
+    // mangled in the logs.
+    const out = redactText("capability=bankops.open_sub_account_large_deposit");
+    expect(out).toBe("capability=bankops.open_sub_account_large_deposit");
+  });
+
   it("masks values whose key looks sensitive, regardless of shape", () => {
     const out = redactValue({ password: "hunter2", memberId: "10023" }) as Record<string, unknown>;
     expect(out.password).toBe("[REDACTED]");

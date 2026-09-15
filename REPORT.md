@@ -243,27 +243,37 @@ self-service limit) escalates on *every* replay, by design, not just when
 something goes wrong.
 
 **Taking control of the live session, not a fresh one:** this is the part
-of the brief I spent the most design effort on, because it's easy to fake.
-`core/session.ts` launches the browser via `chromium.launchServer()` (a
-real OS-level browser process) and persists its WebSocket endpoint to disk.
-The automation process holds a connected client to it; when it escalates,
-it writes an `InterventionRequest` (goal, current step, current URL, a
-screenshot, the reason) to a small file-backed queue
-(`core/escalation.ts`) and blocks, polling for resolution — **the browser
-stays open, the page stays exactly where it was.** A *separate* process —
-the `operator` CLI, run from a different terminal — reads the same queue,
-connects to the *same* WebSocket endpoint, and gets a handle to the *same*
-live page. In the demo scenario, it then performs the actual manual step
-(clicking "Approve as Manager") against that live page, standing in for a
-human physically doing it, and writes the resolution back. The discovery/
-replay process wakes up from its poll, sees `resolved`, and continues from
-exactly where it left off — no re-navigation, no state reconstruction.
-I mocked the *operator UI* (a CLI, not a co-browsing console — explicitly
-allowed by the brief's scope note) but not the *control-transfer
-mechanism*: the cross-process CDP handoff onto one shared browser session
-is real and is exactly what a real operator console would sit on top of
-(swap the CLI for a screen-share/co-browse UI backed by the same
-WebSocket endpoint, and it's the same mechanism plus a UI).
+of the brief I spent the most design effort on, because it's easy to fake
+-- and I initially did fake it by accident. My first implementation used
+`chromium.launchServer()` and had the operator process `chromium.connect()`
+to its WebSocket endpoint; that runs, but Playwright's own client-side
+multiplexing gives each `connect()` call an *isolated* session that can't
+see contexts/pages another connection created (it's built for spreading
+independent test workers over one browser, not for two clients sharing one
+page) -- the operator process reliably saw zero contexts. The fix was to
+launch Chromium with a real `--remote-debugging-port` and have the operator
+attach via `chromium.connectOverCDP()`: raw Chrome DevTools Protocol is a
+single global namespace on the browser process itself, so a second process
+connecting to that port genuinely sees the same contexts and pages, not a
+sandboxed view of them. `core/session.ts` persists that CDP port to disk;
+the automation process holds the live page open and, on escalation, writes
+an `InterventionRequest` (goal, current step, current URL, a screenshot,
+the reason) to a small file-backed queue (`core/escalation.ts`) and blocks,
+polling for resolution — **the browser stays open, the page stays exactly
+where it was.** A *separate* process — the `operator` CLI, run from a
+different terminal — reads the same queue, connects over CDP to the same
+port, and gets a handle to the *same* live page. In the demo scenario, it
+then performs the actual manual step (clicking "Approve as Manager")
+against that live page, standing in for a human physically doing it, and
+writes the resolution back. The discovery/replay process wakes up from its
+poll, sees `resolved`, and continues from exactly where it left off — no
+re-navigation, no state reconstruction. I mocked the *operator UI* (a CLI,
+not a co-browsing console — explicitly allowed by the brief's scope note)
+but not the *control-transfer mechanism*: the cross-process CDP handoff
+onto one shared browser session is real and is exactly what a real
+operator console would sit on top of (swap the CLI for a screen-share/
+co-browse UI attached to the same CDP endpoint, and it's the same
+mechanism plus a UI).
 
 **Resuming:** `resolveIntervention` records who acted, what they did, and
 whether the outcome was "resumed" or "aborted." On resume, the automation

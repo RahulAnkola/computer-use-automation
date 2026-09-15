@@ -42,8 +42,30 @@ than as standalone evidence: a genuine **hard failure** (an undeclared
 dead-end the known-outcome taxonomy doesn't cover), to show the
 error/business-outcome/hard-failure split holds in both directions.
 
-## Escalation demo
+## Escalation & handoff demo (real, captured)
 
-See the root `README.md` §3 for how to reproduce the human-in-the-loop
-escalation and handoff live (it requires a second terminal acting as the
-operator, so it isn't a single static log to check in the same way).
+The `bankops.open_sub_account_large_deposit` capability opens a sub-account
+with a deposit over the $10,000 self-service limit, which the mock app
+gates behind a manager-only "Approve as Manager" control. Both runs below
+are real: the discovery agent (and, separately, the replay engine) actually
+paused, and a second process (`npm run operator`) actually attached to the
+same live Chromium session over CDP and clicked the approval control.
+
+- **`discover-bankops_open_sub_account_large_deposit-1789449655195/`** —
+  live Gemini-driven discovery for member `10045`, deposit `$15000`. The
+  agent recognized the manager-approval requirement, called `request_human`
+  rather than clicking it, and `log.jsonl` shows `escalation_raised` →
+  (operator CLI approves in a separate process) → `escalation_resolved` →
+  the agent resuming, extracting outputs, and finishing successfully. The
+  resulting artifact (`artifacts/bankops.open_sub_account_large_deposit.json`)
+  contains the pause point as a first-class `escalate` step (`step-6`) and
+  is marked `riskLevel: "risky"`.
+- **`replay-bankops_open_sub_account_large_deposit-1789449816262/`** — a
+  *deterministic replay* of that same artifact (no LLM). It hits the exact
+  same `escalate` step and pauses identically, proving escalation is a
+  designed-in property of the capability, not just something the live
+  agent happened to do once. Resolved via the same `operator` CLI, then
+  resumed and completed with outputs `{subAccountId: "SUB-501",
+  confirmedBalance: "$15000.00"}`.
+
+Reproduce it yourself with the exact commands in the root `README.md` §3.
