@@ -122,7 +122,7 @@ with a deposit over the $10,000 self-service limit, which the mock app
 gates behind a manager-only "Approve as Manager" control. The agent's
 guardrails forbid it from clicking that control itself — it must escalate.
 
-Discover it (the agent will pause and print an intervention id):
+Discover it (the agent will pause and wait for a human operator):
 
 ```bash
 npm run discover -- --capability bankops.open_sub_account_large_deposit \
@@ -164,7 +164,8 @@ replay, the catalog, and the test suite need no network access at all
 
 ## Evidence
 
-`evidence/` contains real runs: a discovery run (with the full decide/act
-log and screenshots), a successful replay, and a replay that hits a
-business outcome. See `evidence/README.md` for an index once the runs are
-in place.
+`evidence/` contains real runs already: two discovery runs (the golden
+path, and the escalation/manager-approval path — each with the full
+decide/act log and screenshots) and five replays covering success, all
+three business-outcome categories, and the escalation handoff. See
+`evidence/README.md` for the full index.
